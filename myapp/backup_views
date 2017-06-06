@@ -1,0 +1,119 @@
+from django.shortcuts import render
+import json
+from django.http import JsonResponse,HttpResponse
+import time
+
+global users
+users = []
+global offer
+offer = []
+global answer
+answer = []
+global candidate1
+candidate1 = []
+global candidate2
+candidate2 = []
+global flag
+flag = 0
+# Create your views here.
+
+def homepage(request):
+	return render(request, 'myapp/homepage.html', {})
+
+
+def login(request):
+    global flag
+    #print request.GET.dict()['type']
+    print request.GET.get('text')
+    data = json.loads(request.GET.get('text'))
+#    print data
+#    print "11111111111111111111111111111111111111"
+#    print data['type']
+#    print "11111111111111111111111111111111111111"
+    if (data['type'] == "login"):
+        print 'User is requesting to log in'
+        # Inform user this name is already exist
+        if data['name'] in users:
+            jsonData = {'type': "login",'success': False}
+            return JsonResponse(jsonData, safe=False)
+        # log user in and inform user 
+        else:
+            jsonData = {'type': 'login','success': True}
+            print "%s Added to Group" % data['name']
+            users.append(data['name'])
+            return JsonResponse(jsonData, safe=False)
+
+    elif data['type'] == 'offer':
+    # if the connection type is offer from user to another
+        print "sendind offer"
+        # If another user is logged in then forward this offer
+        print 'Forwarding offer to'
+        offer.append(data['offer'])
+        return JsonResponse({'type': 'wait'})
+        '''
+        jsonData = {'type': 'answer',
+                    'answer': data['answer']}
+        return JsonResponse(jsonData, safe=False) 
+        '''
+    # if the connection type is answer, then forward it to another
+    elif (data['type'] == "answer"):
+        answer.append(data['answer'])
+        print 'Forwarding answer to'
+        flag = 1
+        jsonData = {'type': 'AtAnswer'}
+        return JsonResponse(jsonData, safe=False)
+
+    elif (data['type'] == "GetOffer"):
+        print ""
+        print 'I need an offer!'
+        print users
+        print offer
+        while len(offer)<1 :
+            print "waiting on offer"
+            time.sleep(2)
+        myoffer = offer.pop()
+        print users
+        jsonData = {'type': 'offer',
+                    'offer': myoffer,
+                    'name': users[0]}
+        return JsonResponse(jsonData, safe=False)
+
+    elif (data['type'] == "candidate"):
+        print 'Forwarding candidate to'
+        if flag == 0:
+            candidate1.append(data['candidate'])
+        elif flag == 1:
+            candidate2.append(data['candidate'])
+        else:
+            print "999999999999999999999999999999999"
+
+        return JsonResponse({'type': 'AtCandiadate'})
+
+    elif (data['type'] == "GetAnswer"):
+        print 'Getting Answer '
+        jsonData = {'type': 'answer',
+                    'answer': answer.pop()}
+        return JsonResponse(jsonData, safe=False)
+
+    elif (data['type'] == "GetIce"):
+        print 'Getting Ice'
+        if data['name'] == "user1":
+            jsonData = {'type': 'candidate',
+                        'candidate': candidate2.pop(0)}
+        elif data['name'] == "user2":
+            jsonData = {'type': 'candidate',
+                        'candidate': candidate1.pop(0)}
+        return JsonResponse(jsonData, safe=False)
+    #    print 'From: %s' % users[hash(str(message.reply_channel))]
+    '''
+        jsonData = {'type': 'candidate',
+                    'candidate': data['candidate']}
+        jsonData = {'type': 'AtCandidate'}
+        return JsonResponse(jsonData, safe=False)
+	'''
+
+    '''
+    jsonData = {'type': 'answer',
+                'answer': data['answer']}
+    return JsonResponse(jsonData, safe=False)
+    '''

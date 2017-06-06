@@ -1,0 +1,74 @@
+{% load static %}
+<html> 
+
+   <head> 
+      <title>WebRTC</title> 
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> 
+   </head>
+ 
+   <style> 
+      body {
+         background: #b7adba;
+         padding: 30px;
+      }
+      #login {
+         margin-top: 200px;
+      }
+      #hangUpBtn {
+         margin-left: 10px;
+      }
+      .btns{
+         margin: 10px;
+      }
+   </style>
+	
+   <body> 
+      <div id = "loginSection" class = "container text-center"> 
+         <div id="login" class = "row"> 
+            <div class = "col-lg-12 col-md-12 col-sm-12"> 
+               <h2>WebRTC Text and Video Demo</h2> 
+               <input id = "usernameInput">
+               <button id = "loginBtn" class = "btn btn-primary">
+                  Sign in</button> 
+            </div> 
+         </div> 
+      </div>
+		
+      <div id = "peerCallSection" class = "call-page container">
+		
+         <div class = "row"> 
+            <div class = "col-lg-6 col-md-6 col-sm-6 text-center"> 
+               <div class="btns">
+                  <input id="callUserName" type="text" placeholder="target username">
+                  <span><button id = "callBtn" class="btn btn-default">Connect</button><button id = "hangUpBtn" class = "btn-danger btn">End</button></span><!--!-->
+               </div>
+               <div>
+                  <input id = "messageValue" type = "text" placeholder = "message" />
+                  <button id = "sendBtn" class = "btn-success btn">Send</button>
+               </div>
+               <div class = "panel panel-Info"> 
+                  <div class = "panel-heading">Text</div> 
+                  <div id = "chatHistory" class = "panel-body text-left"></div> 
+               </div>
+            </div> 
+
+            <div class = "col-lg-6 col-md-6 col-sm-6 text-center"> 
+                  <div>
+                     <video id = "callerVideo" autoplay></video> 
+                  </div>
+                  <div>
+                     <video id = "calleeVideo" autoplay></video>
+                  </div>
+            </div> 
+         </div>		
+
+         
+      </div>  
+			
+      </div> 
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src = "/static/client.js"></script> 
+		
+   </body>
+ 
+</html>
