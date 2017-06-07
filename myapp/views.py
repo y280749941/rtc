@@ -2,7 +2,7 @@ from django.shortcuts import render
 import json
 from django.http import JsonResponse,HttpResponse
 import time
-
+from models import Visitor
 global users
 users = []
 global offer
@@ -19,7 +19,17 @@ connected = [] #caller #1 callee #2
 global leave
 leave =[]
 def homepage(request):
-	return render(request, 'myapp/newhomepage.html', {})
+    new_visitor = Visitor.objects.create(ipAddr=get_client_ip(request))
+    new_visitor.save()
+    return render(request, 'myapp/newhomepage.html', {})
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 def login(request):
@@ -33,7 +43,7 @@ def login(request):
             return JsonResponse(jsonData, safe=False)
         # log user in and inform user 
         else:
-            jsonData = {'type': 'login','success': True}
+            jsonData = {'type': 'login','success': True,'inform1':'test','inform2':'test'}
             print "%s Added to Group" % data['name']
             users.append(data['name'])
             return JsonResponse(jsonData, safe=False)
@@ -124,5 +134,4 @@ def login(request):
     else:
         print "Nothing here"
         return JsonResponse({'type': 'Junk'})
-
 

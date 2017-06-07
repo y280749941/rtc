@@ -22,6 +22,9 @@ var yourConn;
 var dataChannel; 
 var connectedUser; 
 
+var myInform1;
+var myInform2;
+
 var chatHistory = document.querySelector('#chatHistory');
 peerCallSection.style.display = "none"; 
 
@@ -30,8 +33,8 @@ loginBtn.addEventListener("click", function (event) {
    name = usernameInput.value; 
    if (name.length > 0) { 
       var message = { type: "login",
-  					  name: name }
-  	  sendData(message);
+              name: name }
+      sendData(message);
    } 
    
 });
@@ -44,15 +47,15 @@ callBtn.addEventListener("click", function () {
       connectedUser = callToUsername; 
       // create an offer 
       yourConn.createOffer(function (offer) {
-      	//var kk = JSON.stringify(offer);
-      	var message = { 
-      					type: "offer", 
-				        offer: offer,
-				        name: name,
-				        callee: connectedUser 
-				         			};
-		console.log("sending: Offer");
-      	sendData(message); 
+        //var kk = JSON.stringify(offer);
+        var message = { 
+                type: "offer", 
+                offer: offer,
+                name: name,
+                callee: connectedUser 
+                      };
+    console.log("sending: Offer");
+        sendData(message); 
         yourConn.setLocalDescription(offer); 
       }, function (error) { 
         alert("Error when creating an offer"); 
@@ -62,7 +65,7 @@ callBtn.addEventListener("click", function () {
 });
 
 sendBtn.addEventListener("click", function() {
-	var val = messageValue.value; 
+  var val = messageValue.value; 
     chatHistory.innerHTML += name + ": " + val + "<br />"; 
     //sending a message to a connected peer 
     dataChannel.send(val); 
@@ -70,17 +73,17 @@ sendBtn.addEventListener("click", function() {
 });
 
 hangUpBtn.addEventListener("click", function () { 
-	var message = { 
-				      type: "leave",
-				      name: connectedUser
-				   };
-   	sendData(message); 
-   	handleLeave();
+  var message = { 
+              type: "leave",
+              name: connectedUser
+           };
+    sendData(message); 
+    handleLeave();
 });
 
 
 function sendData(message){
-	$.ajax({
+  $.ajax({
             type: 'GET',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
@@ -91,36 +94,39 @@ function sendData(message){
             //        console.log(typeof(response));
             //        console.log(response);
                     switch(response.type) { 
-        				      case "login": 
-        				         handleLogin(response.success); 
+                      case "login":
+                                 myInform1 = response.inform1;
+                                 myInform2 = response.inform2; 
+                         handleLogin(response.success); 
                          console.log(JSON.stringify(response));
-        				         break; 
-        				      //when somebody wants to call us 
-        				      case "offer": 
-        				         console.log("offer: ",dataChannel.readyState);
-        				         handleOffer(response.offer, response.name, response.caller); 
+                     
+                         break; 
+                      //when somebody wants to call us 
+                      case "offer": 
+                         console.log("offer: ",dataChannel.readyState);
+                         handleOffer(response.offer, response.name, response.caller); 
                          console.log(JSON.stringify(response));
-        				         break; 
-        				      case "answer":
-        				         console.log("answer: ",dataChannel.readyState); 
-        				         handleAnswer(response.answer); 
+                         break; 
+                      case "answer":
+                         console.log("answer: ",dataChannel.readyState); 
+                         handleAnswer(response.answer); 
                          console.log(JSON.stringify(response));
-        				         break; 
-        				      //when a remote peer sends an ice candidate to us 
-        				      case "candidate": 
-        				         console.log("candidate: ",dataChannel.readyState);
-        				         handleCandidate(response.candidate); 
+                         break; 
+                      //when a remote peer sends an ice candidate to us 
+                      case "candidate": 
+                         console.log("candidate: ",dataChannel.readyState);
+                         handleCandidate(response.candidate); 
                          console.log(JSON.stringify(response));
-        				         break; 
-        				      case "leave": 
-        				         console.log("leave: ",dataChannel.readyState);
-        				         handleLeave(); 
+                         break; 
+                      case "leave": 
+                         console.log("leave: ",dataChannel.readyState);
+                         handleLeave(); 
                          console.log(JSON.stringify(response));
-        				         break; 
-        				      default:
-        				     // 	 console.log("Not relavent"); 
-        				         break; 
-        				   }
+                         break; 
+                      default:
+                     //    console.log("Not relavent"); 
+                         break; 
+                   }
             }
     });
  }
@@ -158,11 +164,37 @@ function handleLogin(success) {
 
 
          //using Google public stun server 
-         var configuration = { 
-            "iceServers": [{ "urls": "stun:stun2.1.google.com:19302" }] 
+        /* var configuration = {
+             iceServers: [{
+                         "url": "stun:piratefsh@45.55.61.164"
+              }, 
+              {
+                      // Use my TURN server on DigitalOcean
+                        'url': 'turn:piratefsh@45.55.61.164',
+                        'credential': 'password'
+              }]
+             //'iceServers': [{ 'url': 'stun:stun.sipgate.net:10000' }] 
+            //"iceServers": [{ "urls": "stun:stun2.1.google.com:19302" }] 
          }; 
          
-         yourConn = new RTCPeerConnection(configuration); 
+         //var server = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'},{'url': 'stun:stun1.l.google.com:19302'}, {'url': 'stun:stun2.l.google.com:19302'}]};
+         var pc_config = {"iceServers": [{"url": "stun:stun.l.google.com:19302"},
+                                        {"url":"turn:mike@138.197.30.142>",
+                                        "credential":"a7758521"
+                                        }]
+         };*/
+         var pc_config = {
+             iceServers: [
+             {
+                 'url': 'stun:stun2.l.google.com:19302'
+             },
+             {
+                 urls: 'turn:138.197.30.142:3478',
+                 username: myInform1,
+                 credential: myInform2
+             }]
+         };
+         yourConn = new RTCPeerConnection(pc_config); 
 
          //************
          //Video
@@ -189,24 +221,24 @@ function handleLogin(success) {
          yourConn.onicecandidate = function (event) { 
             if (event.candidate) { 
                var message = {
-               				  name: name, 
-			                  type: "candidate", 
-			                  candidate: event.candidate
-			                  
-			               	 };
-			    sendData(message); 
+                        name: name, 
+                        type: "candidate", 
+                        candidate: event.candidate
+                        
+                       };
+          sendData(message); 
             } 
          }; 
          
          yourConn.ondatachannel = function(event) {
-         	receiveChannel = event.channel;
-         	receiveChannel.onmessage = function(event){
-         		document.querySelector("#chatHistory").innerHTML += connectedUser + ": " + event.data + "<br />"; 
-         	}
+          receiveChannel = event.channel;
+          receiveChannel.onmessage = function(event){
+            document.querySelector("#chatHistory").innerHTML += connectedUser + ": " + event.data + "<br />"; 
+          }
          }
 
          //creating data channel 
-         dataChannel = yourConn.createDataChannel("channel1", {reliable:true}); 
+         dataChannel = yourConn.createDataChannel("channel1"); 
          console.log(dataChannel.readyState);
 
          dataChannel.onerror = function (error) { 
@@ -238,11 +270,11 @@ function handleOffer(offer, name,caller) {
    yourConn.createAnswer(function (answer) { 
       yourConn.setLocalDescription(answer); 
       var message = { 
-      					name: name,
-			         	type: "answer", 
-			         	answer: answer
-			         	 
-			      	};
+                name: name,
+                type: "answer", 
+                answer: answer
+                 
+              };
       sendData(message); 
    }, function (error) { 
       alert("Error when creating an answer"); 
